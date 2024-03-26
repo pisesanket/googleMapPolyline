@@ -5,7 +5,7 @@ import { getDatabase, ref, push, child,get } from "firebase/database";
 import MapWithPolyline from "./mapComponent";
 
 const MapContainer = () => {
-  const [userLocation, setUserLocation] = useState(null);
+  const [userLocation, setUserLocation] = useState( { lat: 17.631812, lng: 74.7852711 });
   const [user, setUser] = useState(null); // Track user's sign-in status
   const [placeName, setPlaceName] = useState("");
   const [speed, setSpeed] = useState(null);
@@ -58,43 +58,47 @@ const MapContainer = () => {
 
   useEffect(() => {
     if (navigator.geolocation && user) {
-
-      const watchId = navigator.geolocation.watchPosition(
-        position => {
-          const newPosition = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          console.log(newPosition);
-          setUserLocation(prevLocation => {
-            // Calculate distance between previous and new position
-            const distance = calculateDistance(prevLocation, newPosition);
-            // fetchPlaceData(position.coords.latitude, position.coords.longitude);
-            // Update location only if distance exceeds threshold
-            if (distance >= MOVEMENT_THRESHOLD) {
-              pushUserLocation("7", newPosition);
-              setSpeed(position.coords.speed);
-              setAccuracy(position.coords.accuracy);
-              setHeading(position.coords.heading);
-              setRequestCount(prevCount => prevCount + 1);
-              return newPosition;
-            } else {
-              return prevLocation;
-            }
-          });
-        },
-        error => {
-          console.error("Error getting user location:", error);
-        }
-      );
+      let watchId;
+      const interval = setInterval(() => {
+        watchId=navigator.geolocation.getCurrentPosition(
+          position => {
+            const newPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            console.log(newPosition);
+            setUserLocation(prevLocation => {
+              const distance = calculateDistance(prevLocation, newPosition);
+              // fetchPlaceData(position.coords.latitude, position.coords.longitude);
+              console.log(distance);
+              if (distance >= MOVEMENT_THRESHOLD) {
+                pushUserLocation("7", newPosition);
+                setSpeed(position.coords.speed);
+                setAccuracy(position.coords.accuracy);
+                setHeading(position.coords.heading);
+                setRequestCount(prevCount => prevCount + 1);
+                return newPosition;
+              } else {
+                return prevLocation;
+              }
+            });
+          },
+          error => {
+            console.error("Error getting user location:", error);
+          }
+        );
+      }, 5000); // Update location every 5 seconds
   
+      // Clear interval on component unmount
       return () => {
+        clearInterval(interval);
         navigator.geolocation.clearWatch(watchId);
       };
     } else {
       alert("Geolocation is not supported by this browser.");
     }
   }, [userLocation,user]);
+  
 
   const calculateDistance = (pos1, pos2) => {
     if (!pos1 || !pos2) return 0;
