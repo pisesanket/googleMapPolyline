@@ -65,14 +65,14 @@ const MapContainer = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          console.log(newPosition);
           setUserLocation(prevLocation => {
             // Calculate distance between previous and new position
             const distance = calculateDistance(prevLocation, newPosition);
             fetchPlaceData(position.coords.latitude, position.coords.longitude);
             // Update location only if distance exceeds threshold
             if (distance >= MOVEMENT_THRESHOLD) {
-              pushUserLocation("4", newPosition);
+              console.log(newPosition);
+              pushUserLocation("6", newPosition);
               setSpeed(position.coords.speed);
               setAccuracy(position.coords.accuracy);
               setHeading(position.coords.heading);
@@ -250,7 +250,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('4');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('6');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
