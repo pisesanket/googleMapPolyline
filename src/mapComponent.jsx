@@ -20,9 +20,9 @@ const MapWithPolyline = ( {coordinates} ) => {
 
   const polylineOptions = {
     path: coordinates,
-    strokeColor: "#000000",
-    strokeOpacity: 10,
-    strokeWeight: 20,
+    strokeColor: "#ff0000",
+    strokeOpacity: 1.0,
+    strokeWeight: 2,
   };
 //   console.log({ lat: coordinates[0].lat, lng: coordinates[0].lng })
   return (
