@@ -14,9 +14,18 @@ const MapContainer = () => {
   const [requestCount, setRequestCount] = useState(0);
   const [coordinates,setCoordinates] = useState([]);
   const MOVEMENT_THRESHOLD = 3;
-  const cords = [
-    { lat: 17.6362421, lng: 74.7852711 }, 
-    { lat: 17.631812, lng: 74.7852711 },   
+ const cords = [
+    { lat: 17.63625309630944, lng: 74.78525635698061 },
+    { lat: 17.636148, lng: 74.785394 },
+    { lat: 17.635991, lng: 74.785491 },
+    { lat: 17.635758, lng: 74.785560 },
+    { lat: 17.635651, lng: 74.785593 },
+    { lat: 17.635544, lng: 74.785386 },
+    { lat: 17.635389, lng: 74.785166 },
+    { lat: 17.635243, lng: 74.784955 },
+    { lat: 17.635073, lng: 74.784700 },
+    { lat: 17.635187, lng: 74.785077 },
+    { lat: 17.635373, lng: 74.785388 }
   ]
 
   useEffect(() => {
