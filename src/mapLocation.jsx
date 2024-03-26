@@ -66,7 +66,7 @@ const MapContainer = () => {
             lng: position.coords.longitude
           };
           console.log(newPosition);
-          pushUserLocation("3", newPosition);
+          pushUserLocation("4", newPosition);
           setUserLocation(prevLocation => {
             // Calculate distance between previous and new position
             const distance = calculateDistance(prevLocation, newPosition);
@@ -250,7 +250,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('3');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('4');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
