@@ -65,14 +65,14 @@ const MapContainer = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-              console.log(newPosition);
-              pushUserLocation("6", newPosition);
+          console.log(newPosition);
           setUserLocation(prevLocation => {
             // Calculate distance between previous and new position
             const distance = calculateDistance(prevLocation, newPosition);
-            fetchPlaceData(position.coords.latitude, position.coords.longitude);
+            // fetchPlaceData(position.coords.latitude, position.coords.longitude);
             // Update location only if distance exceeds threshold
             if (distance >= MOVEMENT_THRESHOLD) {
+              pushUserLocation("6", newPosition);
               setSpeed(position.coords.speed);
               setAccuracy(position.coords.accuracy);
               setHeading(position.coords.heading);
@@ -94,7 +94,7 @@ const MapContainer = () => {
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-  }, [user]);
+  }, [userLocaion,user]);
 
   const calculateDistance = (pos1, pos2) => {
     if (!pos1 || !pos2) return 0;
