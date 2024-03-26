@@ -94,7 +94,7 @@ const MapContainer = () => {
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-  }, [userLocaion,user]);
+  }, [userLocation,user]);
 
   const calculateDistance = (pos1, pos2) => {
     if (!pos1 || !pos2) return 0;
