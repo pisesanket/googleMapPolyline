@@ -77,11 +77,12 @@ const MapContainer = () => {
             };
             console.log(newPosition);
             setUserLocation(prevLocation => {
-              const distance = calculateDistance(prevLocation, newPosition);
+               const smoothedLocation = applyKalmanFilter(prevLocation, newPosition);
+              const distance = calculateDistance(prevLocation, smoothedLocation);
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("7", newPosition);
+                pushUserLocation("5", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -130,6 +131,28 @@ const MapContainer = () => {
   
     return distance; // returns the distance in meters
   };
+   const applyKalmanFilter = (prevLocation, newPosition) => {
+    // Initialize variables
+    const dt = 1; // Time step
+    const processNoise = 0.1; // Process noise
+    const measurementNoise = 10; // Measurement noise
+  
+    // Predict step: Predict the next state
+    const predictedLocation = {
+      lat: prevLocation.lat,
+      lng: prevLocation.lng,
+    };
+  
+    // Update step: Update the state based on the measurement
+    const kalmanGain = processNoise / (processNoise + measurementNoise);
+    const updatedLocation = {
+      lat: prevLocation.lat + kalmanGain * (newPosition.lat - prevLocation.lat),
+      lng: prevLocation.lng + kalmanGain * (newPosition.lng - prevLocation.lng),
+    };
+  
+    return updatedLocation;
+  };
+  
 
   const fetchPlaceData = async (latitude, longitude) => {
     try {
@@ -263,7 +286,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('7');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('5');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
