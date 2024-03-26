@@ -255,7 +255,7 @@ const MapContainer = () => {
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={cords} />}
+        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
         
       </div>
     </div>
