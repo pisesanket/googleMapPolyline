@@ -5,7 +5,7 @@ import { getDatabase, ref, push, child,get } from "firebase/database";
 import MapWithPolyline from "./mapComponent";
 
 const MapContainer = () => {
-  const [userLocation, setUserLocation] = useState( { lat: 0, lng: 0 });
+  const [userLocation, setUserLocation] = useState( { lat: 17.631812, lng: 74.7852711 });
   const [user, setUser] = useState(null); // Track user's sign-in status
   const [placeName, setPlaceName] = useState("");
   const [speed, setSpeed] = useState(null);
@@ -77,12 +77,11 @@ const MapContainer = () => {
             };
             console.log(newPosition);
             setUserLocation(prevLocation => {
-            const smoothedLocation = applyKalmanFilter(prevLocation, newPosition);
-              const distance = calculateDistance(prevLocation, smoothedLocation);
+              const distance = calculateDistance(prevLocation, newPosition);
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("3", newPosition);
+                pushUserLocation("7", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -131,64 +130,43 @@ const MapContainer = () => {
   
     return distance; // returns the distance in meters
   };
- const applyKalmanFilter = (prevLocation, newPosition) => {
-    // Initialize variables
-    const dt = 1; // Time step
-    const processNoise = 0.1; // Process noise
-    const measurementNoise = 10; // Measurement noise
-  
-    // Predict step: Predict the next state
-    const predictedLocation = {
-      lat: prevLocation.lat,
-      lng: prevLocation.lng,
-    };
-  
-    // Update step: Update the state based on the measurement
-    const kalmanGain = processNoise / (processNoise + measurementNoise);
-    const updatedLocation = {
-      lat: prevLocation.lat + kalmanGain * (newPosition.lat - prevLocation.lat),
-      lng: prevLocation.lng + kalmanGain * (newPosition.lng - prevLocation.lng),
-    };
-  
-    return updatedLocation;
-  };
-  
-  // const fetchPlaceData = async (latitude, longitude) => {
-  //   try {
-  //     const response = await fetch(
-  //       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAqyb0h3z5qGnRTqm5UOFtQ9j4Pm2iwOTo`
-  //     );
-  //     const data = await response.json();
-  //     if (data.results && data.results.length > 0) {
-  //       const place = data.results[0].formatted_address;
-  //       setPlaceName(place);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching place data:", error);
-  //   }
-  // };
 
-  // const fetchUserLocations = (userId) => {
-  //   const db = getDatabase();
-  //   const locationRef = ref(db, `locations/${userId}`);
+  const fetchPlaceData = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAqyb0h3z5qGnRTqm5UOFtQ9j4Pm2iwOTo`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const place = data.results[0].formatted_address;
+        setPlaceName(place);
+      }
+    } catch (error) {
+      console.error("Error fetching place data:", error);
+    }
+  };
+
+  const fetchUserLocations = (userId) => {
+    const db = getDatabase();
+    const locationRef = ref(db, `locations/${userId}`);
   
-  //   // Listen for changes in the user's location node
-  //   onValue(locationRef, (snapshot) => {
-  //     const userLocations = []; // Array to store user's locations
-  //     snapshot.forEach((childSnapshot) => {
-  //       // Iterate through each child node (entries) under the user's node
-  //       const location = childSnapshot.val(); // Get the location data
-  //       userLocations.push(location); // Push location data into the array
-  //     });
-  //     // Now userLocations array contains all entries for the user
-  //     console.log("User Locations:", userLocations);
-  //   }, {
-  //     // Set error callback to handle any potential errors
-  //     errorCallback: (error) => {
-  //       console.error("Error fetching user locations:", error);
-  //     }
-  //   });
-  // };
+    // Listen for changes in the user's location node
+    onValue(locationRef, (snapshot) => {
+      const userLocations = []; // Array to store user's locations
+      snapshot.forEach((childSnapshot) => {
+        // Iterate through each child node (entries) under the user's node
+        const location = childSnapshot.val(); // Get the location data
+        userLocations.push(location); // Push location data into the array
+      });
+      // Now userLocations array contains all entries for the user
+      console.log("User Locations:", userLocations);
+    }, {
+      // Set error callback to handle any potential errors
+      errorCallback: (error) => {
+        console.error("Error fetching user locations:", error);
+      }
+    });
+  };
   
   const fetchUserLocationsOnce = (userId) => {
     const db = getDatabase();
@@ -285,12 +263,12 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('3');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('7');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
+        {coordinates&&<MapWithPolyline coordinates={cords} />}
         
       </div>
     </div>
