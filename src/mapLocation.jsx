@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
-import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, push, child,get } from "firebase/database";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getDatabase, ref, push, child, get } from "firebase/database";
 import MapWithPolyline from "./mapComponent";
 
 const MapContainer = () => {
-  const [userLocation, setUserLocation] = useState( { lat: 17.631812, lng: 74.7852711 });
-  const [user, setUser] = useState(null); // Track user's sign-in status
+  const [userLocation, setUserLocation] = useState({ lat: 17.631812, lng: 74.7852711 });
+  const [user, setUser] = useState(null);
   const [placeName, setPlaceName] = useState("");
   const [speed, setSpeed] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const [heading, setHeading] = useState(null);
   const [requestCount, setRequestCount] = useState(0);
-  const [coordinates,setCoordinates] = useState([]);
+  const [coordinates, setCoordinates] = useState([]);
   const MOVEMENT_THRESHOLD = 3;
- const cords = [
+  const cords = [
     { lat: 17.63625309630944, lng: 74.78525635698061 },
     { lat: 17.636148, lng: 74.785394 },
     { lat: 17.635991, lng: 74.785491 },
@@ -26,11 +26,10 @@ const MapContainer = () => {
     { lat: 17.635073, lng: 74.784700 },
     { lat: 17.635187, lng: 74.785077 },
     { lat: 17.635373, lng: 74.785388 }
-  ]
+  ];
 
   useEffect(() => {
     const firebaseConfig = {
-      // Your Firebase configuration
       apiKey: "AIzaSyAqyb0h3z5qGnRTqm5UOFtQ9j4Pm2iwOTo",
       authDomain: "transport-management-sys-9ec8e.firebaseapp.com",
       databaseURL: "https://transport-management-sys-9ec8e-default-rtdb.firebaseio.com",
@@ -69,19 +68,18 @@ const MapContainer = () => {
     if (navigator.geolocation && user) {
       let watchId;
       const interval = setInterval(() => {
-        watchId=navigator.geolocation.getCurrentPosition(
+        watchId = navigator.geolocation.getCurrentPosition(
           position => {
             const newPosition = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
-            console.log(newPosition);
             setUserLocation(prevLocation => {
-              const distance = calculateDistance(prevLocation, newPosition);
-              // fetchPlaceData(position.coords.latitude, position.coords.longitude);
+              const smoothedLocation = applyKalmanFilter(prevLocation, newPosition);
+              const distance = calculateDistance(prevLocation, smoothedLocation);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("7", newPosition);
+                pushUserLocation('9', newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -96,9 +94,8 @@ const MapContainer = () => {
             console.error("Error getting user location:", error);
           }
         );
-      }, 5000); // Update location every 5 seconds
-  
-      // Clear interval on component unmount
+      }, 5000);
+
       return () => {
         clearInterval(interval);
         navigator.geolocation.clearWatch(watchId);
@@ -106,17 +103,16 @@ const MapContainer = () => {
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-  }, [userLocation,user]);
-  
+  }, [ user]);
 
   const calculateDistance = (pos1, pos2) => {
     if (!pos1 || !pos2) return 0;
-  
+
     const rad = (x) => {
       return (x * Math.PI) / 180;
     };
-  
-    const R = 6378137; // Earth’s mean radius in meters
+
+    const R = 6378137;
     const dLat = rad(pos2.lat - pos1.lat);
     const dLong = rad(pos2.lng - pos1.lng);
     const a =
@@ -127,52 +123,44 @@ const MapContainer = () => {
         Math.sin(dLong / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
-  
-    return distance; // returns the distance in meters
+
+    return distance;
   };
 
-  const fetchPlaceData = async (latitude, longitude) => {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAqyb0h3z5qGnRTqm5UOFtQ9j4Pm2iwOTo`
-      );
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        const place = data.results[0].formatted_address;
-        setPlaceName(place);
-      }
-    } catch (error) {
-      console.error("Error fetching place data:", error);
-    }
-  };
-
-  const fetchUserLocations = (userId) => {
+  const pushUserLocation = (userId, location) => {
     const db = getDatabase();
-    const locationRef = ref(db, `locations/${userId}`);
+    const locationRef = ref(db, `locations`);
+    const userLocationRef = child(locationRef, userId);
+    push(userLocationRef, location);
+  };
+
+  const applyKalmanFilter = (prevLocation, newPosition) => {
+    // Initialize variables
+    const dt = 1; // Time step
+    const processNoise = 0.1; // Process noise
+    const measurementNoise = 10; // Measurement noise
   
-    // Listen for changes in the user's location node
-    onValue(locationRef, (snapshot) => {
-      const userLocations = []; // Array to store user's locations
-      snapshot.forEach((childSnapshot) => {
-        // Iterate through each child node (entries) under the user's node
-        const location = childSnapshot.val(); // Get the location data
-        userLocations.push(location); // Push location data into the array
-      });
-      // Now userLocations array contains all entries for the user
-      console.log("User Locations:", userLocations);
-    }, {
-      // Set error callback to handle any potential errors
-      errorCallback: (error) => {
-        console.error("Error fetching user locations:", error);
-      }
-    });
+    // Predict step: Predict the next state
+    const predictedLocation = {
+      lat: prevLocation.lat,
+      lng: prevLocation.lng,
+    };
+  
+    // Update step: Update the state based on the measurement
+    const kalmanGain = processNoise / (processNoise + measurementNoise);
+    const updatedLocation = {
+      lat: prevLocation.lat + kalmanGain * (newPosition.lat - prevLocation.lat),
+      lng: prevLocation.lng + kalmanGain * (newPosition.lng - prevLocation.lng),
+    };
+  
+    return updatedLocation;
   };
   
+
   const fetchUserLocationsOnce = (userId) => {
     const db = getDatabase();
     const locationRef = ref(db, `locations/${userId}`);
-  
-    // Fetch data once from the user's location node
+
     get(locationRef)
       .then((snapshot) => {
         if (snapshot.exists()) {
@@ -181,7 +169,6 @@ const MapContainer = () => {
             lat: location.lat,
             lng: location.lng
           }));
-          console.log("User Locations:", coordinate);
           setCoordinates(coordinate);
         } else {
           console.log("No data available for the user");
@@ -191,46 +178,7 @@ const MapContainer = () => {
         console.error("Error fetching user locations:", error);
       });
   };
-  
 
-  // useEffect(() => {
-  //   const db = getDatabase();
-  //   const locationRef = ref(db, "locations");
-  //   if (userLocation && user) {
-  //     const userLocationRef = child(locationRef, user.uid);
-  //     push(userLocationRef, userLocation);
-  //   }
-  // }, [userLocation, user]);
-  
-  // useEffect(() => {
-  //   if (navigator.geolocation && user) {
-  //     const interval = setInterval(() => {
-  //       let newPosition;
-  //       const watchId = navigator.geolocation.watchPosition(
-  //         position => {
-  //           newPosition = {
-  //             lat: position.coords.latitude,
-  //             lng: position.coords.longitude
-  //           };
-  //           console.log(newPosition);
-  //         }
-  //       )
-  //       pushUserLocation(user.uid, newPosition);
-  //       navigator.geolocation.clearWatch(watchId);
-        
-  //     }, 5000);
-
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [user, userLocation]);
-
-  const pushUserLocation = (userId, location) => {
-    const db = getDatabase();
-    const locationRef = ref(db, `locations`);
-    console.log(location);
-    const userLocationRef = child(locationRef, userId);
-    push(userLocationRef, location);
-  };
   return (
     <div>
       {!user && (
@@ -263,29 +211,15 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('7');}}>Request Count: {requestCount}</p>
+          <p onClick={() => { fetchUserLocationsOnce('9'); }}>Request Count: {requestCount}</p>
         </div>
-        
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={cords} />}
+        {coordinates && <MapWithPolyline coordinates={coordinates} />}
         
+        </div>
       </div>
-    </div>
-  );
-};
-
-export default MapContainer;
-// const watchId = navigator.geolocation.watchPosition(
-//   position => {
-//     const newPosition = {
-//       lat: position.coords.latitude,
-//       lng: position.coords.longitude
-//     };
-//     console.log(newPosition);
-//   }
-// );
-
-// return () => {
-//   navigator.geolocation.clearWatch(watchId);
-// };
+    );
+  };
+  
+  export default MapContainer;
