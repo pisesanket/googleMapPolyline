@@ -72,7 +72,7 @@ const MapContainer = () => {
             // fetchPlaceData(position.coords.latitude, position.coords.longitude);
             // Update location only if distance exceeds threshold
             if (distance >= MOVEMENT_THRESHOLD) {
-              pushUserLocation("6", newPosition);
+              pushUserLocation("7", newPosition);
               setSpeed(position.coords.speed);
               setAccuracy(position.coords.accuracy);
               setHeading(position.coords.heading);
@@ -250,7 +250,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('6');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('7');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
