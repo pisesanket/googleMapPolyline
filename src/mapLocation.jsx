@@ -292,9 +292,9 @@ const MapContainer = () => {
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
         
       </div>
+        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
     </div>
   );
 };
