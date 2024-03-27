@@ -9,8 +9,8 @@ const MapWithPolyline = ( {coordinates} ) => {
   };
 
   const center = {
-    lat: coordinates.length > 0 ? coordinates[0].lat : 0,
-    lng: coordinates.length > 0 ? coordinates[0].lng : 0,
+    lat: coordinates.length > 0 ? coordinates[coordinates.length-1].lat : 0,
+    lng: coordinates.length > 0 ? coordinates[coordinates.length-1].lng : 0,
   };
 
   const mapOptions = {
