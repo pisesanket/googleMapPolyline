@@ -83,7 +83,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("40", newPosition);
+                pushUserLocation("50", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -306,7 +306,7 @@ const fetchUserLocationsContinuous = (userId) => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsContinuous('40');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsContinuous('50');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
