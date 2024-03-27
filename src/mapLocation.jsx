@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, push, child,get } from "firebase/database";
+import { getDatabase, ref, push, child,get, onValue } from "firebase/database";
 import MapWithPolyline from "./mapComponent";
 
 const MapContainer = () => {
@@ -83,7 +83,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("20", newPosition);
+                pushUserLocation("30", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -191,7 +191,26 @@ const MapContainer = () => {
       }
     });
   };
-  
+
+const fetchUserLocationsContinuous = (userId) => {
+  const db = getDatabase();
+  const locationRef = ref(db, `locations/${userId}`);
+
+  onValue(locationRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const userLocations = snapshot.val();
+      const coordinate = Object.values(userLocations).map((location) => ({
+        lat: location.lat,
+        lng: location.lng,
+      }));
+      setCoordinates(coordinate);
+    } else {
+      console.log("No data available for the user");
+    }
+  }, {
+    onlyOnce: true // Set to false if you want to continuously listen for changes
+  });
+};  
   const fetchUserLocationsOnce = (userId) => {
     const db = getDatabase();
     const locationRef = ref(db, `locations/${userId}`);
@@ -287,7 +306,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('20');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsContinuous('30');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
