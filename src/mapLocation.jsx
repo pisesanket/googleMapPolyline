@@ -208,7 +208,7 @@ const fetchUserLocationsContinuous = (userId) => {
       console.log("No data available for the user");
     }
   }, {
-    onlyOnce: true // Set to false if you want to continuously listen for changes
+    onlyOnce: false // Set to false if you want to continuously listen for changes
   });
 };  
   const fetchUserLocationsOnce = (userId) => {
