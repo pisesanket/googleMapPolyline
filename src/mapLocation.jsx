@@ -312,9 +312,10 @@ const fetchUserLocationsContinuous = (userId) => {
       )}
       <div>
         
-      </div style={{width:'500px !important'}}>
-        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
-    </div>
+    <div style={{ width: '500px !important' }}>
+  {coordinates && <MapWithPolyline coordinates={coordinates} />}
+</div>
+
   );
 };
 
