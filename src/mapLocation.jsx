@@ -82,7 +82,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("5", newPosition);
+                pushUserLocation("10", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -286,12 +286,12 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('5');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('10');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={cords} />}
+        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
         
       </div>
     </div>
