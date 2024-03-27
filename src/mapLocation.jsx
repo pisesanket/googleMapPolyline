@@ -69,7 +69,7 @@ const MapContainer = () => {
     if (navigator.geolocation && user) {
       let watchId;
       const interval = setInterval(() => {
-        watchId=navigator.geolocation.getCurrentPosition(
+        watchId=navigator.geolocation.watchPosition(
           position => {
             const newPosition = {
               lat: position.coords.latitude,
@@ -82,7 +82,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("11", newPosition);
+                pushUserLocation("13", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -107,7 +107,7 @@ const MapContainer = () => {
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-  }, [userLocation,user]);
+  }, [user]);
   
 
   const calculateDistance = (pos1, pos2) => {
@@ -286,7 +286,7 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('11');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('13');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
