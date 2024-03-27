@@ -13,7 +13,7 @@ const MapContainer = () => {
   const [heading, setHeading] = useState(null);
   const [requestCount, setRequestCount] = useState(0);
   const [coordinates,setCoordinates] = useState([]);
-  const MOVEMENT_THRESHOLD = 3;
+  const MOVEMENT_THRESHOLD = 2;
  const cords = [
     { lat: 17.63625309630944, lng: 74.78525635698061 },
     { lat: 17.636148, lng: 74.785394 },
@@ -83,7 +83,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("13", newPosition);
+                pushUserLocation("20", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -98,7 +98,7 @@ const MapContainer = () => {
             console.error("Error getting user location:", error);
           }
         );
-      }, 5000); // Update location every 5 seconds
+      }, 3000); // Update location every 5 seconds
   
       // Clear interval on component unmount
       return () => {
@@ -287,12 +287,12 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('13');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('20');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={cords} />}
+        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
         
       </div>
     </div>
