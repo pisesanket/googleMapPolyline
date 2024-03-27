@@ -300,16 +300,4 @@ const MapContainer = () => {
 };
 
 export default MapContainer;
-// const watchId = navigator.geolocation.watchPosition(
-//   position => {
-//     const newPosition = {
-//       lat: position.coords.latitude,
-//       lng: position.coords.longitude
-//     };
-//     console.log(newPosition);
-//   }
-// );
 
-// return () => {
-//   navigator.geolocation.clearWatch(watchId);
-// };
