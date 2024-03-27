@@ -69,6 +69,7 @@ const MapContainer = () => {
     if (navigator.geolocation && user) {
       let watchId;
       const interval = setInterval(() => {
+        console.log('hello');
         watchId=navigator.geolocation.watchPosition(
           position => {
             const newPosition = {
