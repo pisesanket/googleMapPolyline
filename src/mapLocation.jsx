@@ -82,7 +82,7 @@ const MapContainer = () => {
               // fetchPlaceData(position.coords.latitude, position.coords.longitude);
               console.log(distance);
               if (distance >= MOVEMENT_THRESHOLD) {
-                pushUserLocation("10", newPosition);
+                pushUserLocation("11", newPosition);
                 setSpeed(position.coords.speed);
                 setAccuracy(position.coords.accuracy);
                 setHeading(position.coords.heading);
@@ -139,19 +139,19 @@ const MapContainer = () => {
   
     // Predict step: Predict the next state
     const predictedLocation = {
-      lat: prevLocation.lat,
-      lng: prevLocation.lng,
+      lat: prevLocation.lat + dt * (newPosition.lat - prevLocation.lat),
+      lng: prevLocation.lng + dt * (newPosition.lng - prevLocation.lng),
     };
   
     // Update step: Update the state based on the measurement
     const kalmanGain = processNoise / (processNoise + measurementNoise);
     const updatedLocation = {
-      lat: prevLocation.lat + kalmanGain * (newPosition.lat - prevLocation.lat),
-      lng: prevLocation.lng + kalmanGain * (newPosition.lng - prevLocation.lng),
+      lat: predictedLocation.lat + kalmanGain * (newPosition.lat - predictedLocation.lat),
+      lng: predictedLocation.lng + kalmanGain * (newPosition.lng - predictedLocation.lng),
     };
   
     return updatedLocation;
-  };
+};
   
 
   const fetchPlaceData = async (latitude, longitude) => {
@@ -286,12 +286,12 @@ const MapContainer = () => {
           <p>Speed: {speed}</p>
           <p>Accuracy: {accuracy}</p>
           <p>Heading: {heading}</p>
-          <p onClick={()=>{fetchUserLocationsOnce('10');}}>Request Count: {requestCount}</p>
+          <p onClick={()=>{fetchUserLocationsOnce('11');}}>Request Count: {requestCount}</p>
         </div>
         
       )}
       <div>
-        {coordinates&&<MapWithPolyline coordinates={cords} />}
+        {coordinates&&<MapWithPolyline coordinates={coordinates} />}
         
       </div>
     </div>
